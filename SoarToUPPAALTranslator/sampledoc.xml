@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'><nta><declaration>int state_superstate; 
+int state_name; 
+int state_operator_first; 
+int state_operator_name; 
+int state_num; 
+const int nil = 0;
+const int increment = 1; 
+const int initialize_counter = 2; 
+const int counter = 3; 
+broadcast chan Run_Rule;
+
+int id = 1;
+const int N = 2;
+
+typedef struct {
+	bool isRequired;
+	bool isAcceptable;
+	bool isBest;
+	bool isWorst;
+	bool isProhibited;
+	bool isRejected;
+	bool isUnaryIndifferent;
+	bool hasNumericIndifferent;
+	int numericIndifferent;
+	int id;
+} BaseOperator;
+typedef struct {
+	BaseOperator operator;
+	int better[N];
+	int binaryIndifferent[N];
+} Operator;
+
+Operator operators[N];
+int required[N];
+int acceptable[N];
+int best[N];
+chan requireTest;
+BaseOperator defaultOperator = {false, false, false, false, false, false, false, false, 0, 0};
+int defaultOperatorArray[N];
+int numLeft = 0;
+int finalOp;
+
+int getNumLeft(int &amp;ref[N]) {
+	int i = 0;
+	int count = 0;
+	while (i &lt; N &amp;&amp; ref[i] != 0) {
+			count++;
+			i++;
+	}
+	return count;
+}
+
+void initialize(Operator &amp;op[N]) {
+	int i = 0;
+	for (i = 0; i &lt; N; i++) {
+		defaultOperatorArray[i] = 0;
+	}
+	for (i = 0; i &lt; N; i++) {
+		BaseOperator def = {false, false, false, false, false, false, false, false, 0, id};
+		op[i].operator = def;
+		op[i].better = defaultOperatorArray;
+		op[i].binaryIndifferent = defaultOperatorArray;
+		id++;
+	}
+}
+
+void fillOthers() {
+	int i = 0;
+	int requiredIndex = 0;
+	int acceptableIndex = 0;
+	int bestIndex = 0;
+	for (i = 0; i &lt; N; i++) {
+		if (operators[i].operator.isRequired) {
+			required[requiredIndex] = operators[i].operator.id;
+			requiredIndex++;
+		}
+		if (operators[i].operator.isAcceptable) {
+			acceptable[acceptableIndex] = operators[i].operator.id;
+			acceptableIndex++;
+		} 
+		if (operators[i].operator.isBest) {
+			best[bestIndex] = operators[i].operator.id;
+			bestIndex++;
+		}
+	}
+}</declaration><template><name>counter_propose_initialize_counter</name><location id="id0" x="232" y="-80"><name x="248" y="-80">Run</name></location><location id="id1" x="-152" y="-80"><name x="-208" y="-80">Start</name><committed/></location><init ref="id1"/><transition><source ref="id0"/><target ref="id1"/><label kind="synchronisation" x="16" y="-192">Run_Rule?</label><nail x="40" y="-168"/></transition><transition><source ref="id1"/><target ref="id0"/><label kind="guard" x="-152" y="-48">state_superstate == nil &amp;&amp; state_name == nil</label><label kind="synchronisation" x="8" y="-104">Run_Rule?</label><label kind="assignment" x="-152" y="-64">state_operator_name = initialize_counter</label></transition></template><template><name>counter_apply_initialize_counter</name><location id="id2" x="232" y="-80"><name x="248" y="-80">Run</name></location><location id="id3" x="-152" y="-80"><name x="-208" y="-80">Start</name><committed/></location><init ref="id3"/><transition><source ref="id2"/><target ref="id3"/><label kind="synchronisation" x="16" y="-192">Run_Rule?</label><nail x="40" y="-168"/></transition><transition><source ref="id3"/><target ref="id2"/><label kind="guard" x="-152" y="-48">state_operator_name == initialize_counter</label><label kind="synchronisation" x="8" y="-104">Run_Rule?</label><label kind="assignment" x="-152" y="-64">state_name = counter, state_num = 2</label></transition></template><template><name>counter_propose_increment</name><location id="id4" x="232" y="-80"><name x="248" y="-80">Run</name></location><location id="id5" x="-152" y="-80"><name x="-208" y="-80">Start</name><committed/></location><init ref="id5"/><transition><source ref="id4"/><target ref="id5"/><label kind="synchronisation" x="16" y="-192">Run_Rule?</label><nail x="40" y="-168"/></transition><transition><source ref="id5"/><target ref="id4"/><label kind="guard" x="-152" y="-48">state_name == counter</label><label kind="synchronisation" x="8" y="-104">Run_Rule?</label><label kind="assignment" x="-152" y="-64">state_operator_name = increment</label></transition></template><template><name>counter_apply_increment</name><location id="id6" x="232" y="-80"><name x="248" y="-80">Run</name></location><location id="id7" x="-152" y="-80"><name x="-208" y="-80">Start</name><committed/></location><init ref="id7"/><transition><source ref="id6"/><target ref="id7"/><label kind="synchronisation" x="16" y="-192">Run_Rule?</label><nail x="40" y="-168"/></transition><transition><source ref="id7"/><target ref="id6"/><label kind="guard" x="-152" y="-48">state_name == counter &amp;&amp; state_operator_name == increment &amp;&amp; state_operator_first == state_num</label><label kind="synchronisation" x="8" y="-104">Run_Rule?</label><label kind="assignment" x="-152" y="-64">state_num = state_num + 1</label></transition></template><template><name>counter_detect_goal_achieved</name><location id="id8" x="232" y="-80"><name x="248" y="-80">Run</name></location><location id="id9" x="-152" y="-80"><name x="-208" y="-80">Start</name><committed/></location><init ref="id9"/><transition><source ref="id8"/><target ref="id9"/><label kind="synchronisation" x="16" y="-192">Run_Rule?</label><nail x="40" y="-168"/></transition><transition><source ref="id9"/><target ref="id8"/><label kind="guard" x="-152" y="-48">state_name == counter &amp;&amp; state_num == 7</label><label kind="synchronisation" x="8" y="-104">Run_Rule?</label></transition></template><template><name>scheduler</name><location id="id10" x="248" y="-72"><name x="264" y="-72">Check</name><committed/></location><location id="id11" x="-144" y="-72"><name x="-128" y="-72">Run</name><committed/></location><location id="id12" x="-368" y="-72"><name x="-424" y="-72">Start</name></location><init ref="id12"/><transition><source ref="id10"/><target ref="id11"/><label kind="synchronisation" x="24" y="-152">Run_Rule!</label><nail x="56" y="-128"/></transition><transition><source ref="id11"/><target ref="id10"/><label kind="guard" x="-136" y="-48">!(state_name == counter &amp;&amp; state_num == 7)</label><nail x="128" y="-72"/></transition><transition><source ref="id12"/><target ref="id11"/><label kind="synchronisation" x="-288" y="-96">Run_Rule!</label></transition></template><template><name>preferenceResolutionTemplate</name><declaration>bool requiredAndProhibited;
+int currentOp;
+bool isRequiredAndProhibited() {
+	int i = 0;
+	while (i &lt; N &amp;&amp; required[i] != 0) {
+		if (operators[required[i]-1].operator.isProhibited == 1) {
+			return true;
+		}
+		i++;
+	}
+	return false;
+}
+
+void remove(int index, int &amp;ref[N]) {
+	int i = index;
+	while (i &lt; N-1 &amp;&amp; ref[i] != 0) {
+		ref[i] = ref[i+1];
+		i++;
+	}
+	ref[i] = 0;
+} 
+
+void removeProhibitedFromAcceptable() {
+	int i = 0;
+	while (i &lt; N &amp;&amp; acceptable[i] != 0) {
+		if (operators[acceptable[i]-1].operator.isProhibited == 1) {
+			remove(i, acceptable);
+		} else {
+			i++;
+		}
+	}
+}
+
+int contains(int testId) {
+	int i = 0;
+	while (i &lt; N &amp;&amp; acceptable[i] != 0) {
+		if (acceptable[i] == testId) {
+			return i;
+		}
+		i++;
+	}
+	return -1;
+}
+
+void removeWorseAndRejectedFromAcceptable() {
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	bool temp[N];
+	int containID = -1;
+	for (k = 0; k &lt; N; k++) {
+		temp[k] = false;
+	}
+	i = 0;
+	while (i &lt; N &amp;&amp; acceptable[i] != 0) {
+		j = 0;
+		while (j &lt; N &amp;&amp; operators[acceptable[i]-1].better[j] != 0) {
+			containID = contains(operators[acceptable[i]-1].better[j]);
+			if (!temp[operators[acceptable[i]-1].better[j] - 1] &amp;&amp; containID != -1) {
+				temp[operators[acceptable[i]-1].better[j] - 1] = true;
+			}
+			j++;
+		}
+		if (operators[acceptable[i]-1].operator.isRejected == 1 &amp;&amp; !temp[acceptable[i] - 1]) {
+			temp[acceptable[i] - 1] = true;
+		}
+		i++;
+	}
+	i = N-1;
+	while (i &gt;= 0) {
+		if (temp[i]) {
+			remove(i, acceptable);
+		}
+		i--;	
+	}
+}
+
+void removeBest() {
+	int i = 0;
+	while (i &lt; N &amp;&amp; acceptable[i] != 0) {
+		if (operators[acceptable[i]-1].operator.isBest) {
+			remove(i, acceptable);
+		} else {
+			i++;
+		}
+	}
+}
+
+void removeWorst() {
+	int i = 0;
+	while (i &lt; N &amp;&amp; acceptable[i] != 0) {
+		if (operators[acceptable[i]-1].operator.isWorst) {
+			remove(i, acceptable);
+		} else {
+			i++;
+		}
+	}
+}
+
+bool areAllIndifferent() {
+	int i = 0;
+	int j = 0;
+	bool temp[N];
+	for(i = 0; i &lt; N; i++) {
+		temp[i] = false;
+	}
+	i = 0;
+	while (i &lt; N &amp;&amp; acceptable[i] != 0) {
+		if (operators[acceptable[i]-1].operator.isUnaryIndifferent == 0 &amp;&amp; operators[acceptable[i]-1].operator.hasNumericIndifferent == 0) {
+			temp[acceptable[i]-1] = true;
+		}
+		i++;
+	}
+	i = 0;
+	while (i &lt; N) {
+		if (temp[i]) {
+			j = 0;
+			if (operators[i].binaryIndifferent[0] == 0) {
+				return false;
+			}
+			while(j &lt; N &amp;&amp; operators[i].binaryIndifferent[j] != 0) {
+				if(contains(operators[i].binaryIndifferent[j]) == -1) {
+					return false;
+				}
+				j++;
+			}
+		}
+		i++;
+	}
+	return true;
+}
+
+int modulus(int num) {
+	if (num == 0) {
+		return 0;
+	} else {
+		int d = num / numLeft;
+		int m = numLeft*d;
+		int r = num-m;
+		return r;
+	}
+}</declaration><location id="id13" x="-3488" y="-864"><committed/></location><location id="id14" x="-3488" y="-920"><committed/></location><location id="id15" x="-3488" y="-1120"><committed/></location><location id="id16" x="-2966" y="-706"><name x="-2976" y="-736">Tie</name><committed/></location><location id="id17" x="-3488" y="-624"><name x="-3616" y="-632">IndifferentTest</name><committed/></location><location id="id18" x="-3488" y="-816"><name x="-3592" y="-824">WorstFilter</name><committed/></location><location id="id19" x="-2976" y="-1064"><name x="-2986" y="-1094">Conflict</name><committed/></location><location id="id20" x="-3488" y="-992"><name x="-3576" y="-1000">BestFilter</name><committed/></location><location id="id21" x="-3488" y="-1064"><name x="-3632" y="-1072">BetterWorseFilter</name><committed/></location><location id="id22" x="-2872" y="-1096"><name x="-2864" y="-1120">NoChange</name><committed/></location><location id="id23" x="-3488" y="-1192"><name x="-3592" y="-1200">RejectFilter</name><committed/></location><location id="id24" x="-3488" y="-1264"><name x="-3600" y="-1272">ProhibitFilter</name><committed/></location><location id="id25" x="-3488" y="-1336"><name x="-3640" y="-1344">AcceptableCollect</name><committed/></location><location id="id26" x="-2616" y="-520"><name x="-2598" y="-594">done</name><committed/></location><location id="id27" x="-2976" y="-1424"><committed/></location><location id="id28" x="-2976" y="-1520"><name x="-2986" y="-1550">ConstraintFailure</name><committed/></location><location id="id29" x="-3488" y="-1424"><name x="-3592" y="-1432">RequireTest</name><committed/></location><location id="id30" x="-3488" y="-1536"><name x="-3498" y="-1566">Start</name><committed/></location><init ref="id30"/><transition><source ref="id17"/><target ref="id26"/><label kind="select" x="-3208" y="-648">x : int[0, N-1]</label><label kind="guard" x="-3224" y="-616">areAllIndifferent()</label><label kind="assignment" x="-3280" y="-600">finalOp = acceptable[modulus(x)]</label><nail x="-2616" y="-624"/></transition><transition><source ref="id13"/><target ref="id18"/><label kind="assignment" x="-3760" y="-848">numLeft = getNumLeft(acceptable)</label></transition><transition><source ref="id20"/><target ref="id14"/><label kind="assignment" x="-3480" y="-960">numLeft = getNumLeft(best)</label></transition><transition><source ref="id15"/><target ref="id21"/><label kind="assignment" x="-3480" y="-1104">numLeft = getNumLeft(acceptable)</label></transition><transition><source ref="id23"/><target ref="id15"/><label kind="guard" x="-3480" y="-1176">numLeft &gt; 1</label><label kind="assignment" x="-3480" y="-1160">removeWorseAndRejectedFromAcceptable()</label></transition><transition><source ref="id21"/><target ref="id19"/><label kind="guard" x="-3296" y="-1056">numLeft == 0</label></transition><transition><source ref="id17"/><target ref="id16"/><label kind="guard" x="-3174" y="-730">!areAllIndifferent()</label><nail x="-3296" y="-624"/><nail x="-3254" y="-706"/></transition><transition><source ref="id18"/><target ref="id17"/><label kind="guard" x="-3480" y="-776">numLeft &gt; 1</label><label kind="assignment" x="-3480" y="-760">removeWorst()</label></transition><transition><source ref="id14"/><target ref="id13"/><label kind="guard" x="-3456" y="-920">numLeft &gt; 0</label><label kind="assignment" x="-3456" y="-880">removeBest()</label><nail x="-3456" y="-888"/></transition><transition><source ref="id14"/><target ref="id13"/><label kind="guard" x="-3624" y="-896">numLeft == 0</label><nail x="-3520" y="-888"/></transition><transition><source ref="id18"/><target ref="id26"/><label kind="guard" x="-3112" y="-840">numLeft == 1</label><label kind="assignment" x="-3112" y="-808">finalOp = acceptable[0]</label><nail x="-2616" y="-816"/></transition><transition><source ref="id18"/><target ref="id22"/><label kind="guard" x="-3224" y="-936">numLeft == 0</label><nail x="-3312" y="-816"/><nail x="-3264" y="-912"/><nail x="-2976" y="-912"/><nail x="-2872" y="-912"/></transition><transition><source ref="id21"/><target ref="id20"/><label kind="guard" x="-3480" y="-1040">numLeft &gt; 0</label></transition><transition><source ref="id23"/><target ref="id22"/><label kind="guard" x="-3080" y="-1216">numLeft == 0</label><nail x="-3304" y="-1192"/><nail x="-2872" y="-1192"/></transition><transition><source ref="id23"/><target ref="id26"/><label kind="guard" x="-2856" y="-1296">numLeft == 1</label><label kind="assignment" x="-2880" y="-1264">finalOp = acceptable[0]</label><nail x="-3328" y="-1192"/><nail x="-3264" y="-1272"/><nail x="-2616" y="-1272"/></transition><transition><source ref="id24"/><target ref="id23"/><label kind="assignment" x="-3744" y="-1240">numLeft = getNumLeft(acceptable)</label></transition><transition><source ref="id25"/><target ref="id24"/><label kind="assignment" x="-3472" y="-1312">removeProhibitedFromAcceptable()</label></transition><transition><source ref="id29"/><target ref="id25"/><label kind="guard" x="-3480" y="-1384">numLeft == 0</label><nail x="-3488" y="-1352"/></transition><transition><source ref="id27"/><target ref="id28"/><label kind="guard" x="-2968" y="-1488">operators[currentOp-1].operator.isProhibited</label></transition><transition><source ref="id27"/><target ref="id26"/><label kind="guard" x="-2808" y="-1456">!operators[currentOp-1].operator.isProhibited</label><label kind="assignment" x="-2792" y="-1416">finalOp = currentOp</label><nail x="-2616" y="-1424"/></transition><transition><source ref="id29"/><target ref="id27"/><label kind="guard" x="-3256" y="-1448">numLeft == 1</label><label kind="assignment" x="-3272" y="-1416">currentOp = required[0]</label></transition><transition><source ref="id29"/><target ref="id28"/><label kind="guard" x="-3144" y="-1552">numLeft &gt; 1</label><nail x="-3320" y="-1424"/><nail x="-3264" y="-1520"/></transition><transition><source ref="id30"/><target ref="id29"/><label kind="synchronisation" x="-3624" y="-1520">requireTest?</label><label kind="assignment" x="-3728" y="-1496">numLeft = getNumLeft(required)</label></transition></template><system>counter_propose_initialize_counter_0 = counter_propose_initialize_counter(); 
+counter_propose_increment_0 = counter_propose_increment(); 
+counter_apply_increment_0 = counter_apply_increment(); 
+counter_apply_initialize_counter_0 = counter_apply_initialize_counter(); 
+counter_detect_goal_achieved_0 = counter_detect_goal_achieved(); 
+schd = scheduler();
+goal = counter_detect_goal_achieved(); 
+preferenceResolution = preferenceResolutionTemplate(); 
+system counter_propose_initialize_counter_0, counter_propose_increment_0, counter_apply_increment_0, counter_apply_initialize_counter_0, counter_detect_goal_achieved_0, goal, schd, preferenceResolution;</system></nta>
